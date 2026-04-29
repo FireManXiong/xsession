@@ -161,7 +161,4 @@ func (slf *RpcSvr) RpcAdd(a *int, b *int) error {
     物联网 TCP 长连接设备
     自定义私有协议长连接开发
 ## 📌 后续规划
-    心跳检测 & 空闲连接回收
-    支持 Protobuf 序列化
-    连接池 & 负载均衡
-    运行时指标、流量监控
+
