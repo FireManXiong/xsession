@@ -1,8 +1,8 @@
 package x_rpc
 
 import (
-	"encoding/json"
 	"github.com/FireManXiong/xsession/x/x_conn"
+	"github.com/FireManXiong/xsession/x/x_json"
 	"github.com/FireManXiong/xsession/x/x_log"
 	"net"
 	"reflect"
@@ -109,7 +109,7 @@ func (slf *rpcMethod) beCall(reqBytes []byte) (rspBytes []byte, err error) {
 	in := make([]reflect.Value, 3)
 	in[0] = *slf.parent
 	req := reflect.New(slf.method.Type.In(1).Elem()).Interface()
-	if err = json.Unmarshal(reqBytes, req); err != nil {
+	if err = x_json.Unmarshal(reqBytes, req); err != nil {
 		return nil, err
 	}
 	in[1] = reflect.ValueOf(req)
@@ -119,7 +119,7 @@ func (slf *rpcMethod) beCall(reqBytes []byte) (rspBytes []byte, err error) {
 	if !out[0].IsNil() {
 		return nil, out[0].Interface().(error)
 	}
-	rspBytes, err = json.Marshal(rsp)
+	rspBytes, err = x_json.Marshal(rsp)
 	return
 }
 
@@ -161,7 +161,7 @@ func (slf *Server) register() {
 
 func (slf *Server) onMessage(conn x_conn.Conn, id uint16, data []byte) {
 	rpcReq := &callReq{}
-	if err := json.Unmarshal(data, rpcReq); err != nil {
+	if err := x_json.Unmarshal(data, rpcReq); err != nil {
 		x_log.Errorf("unmarshal x_rpc req error1: %s", err.Error())
 		return
 	}
@@ -178,7 +178,7 @@ func (slf *Server) onMessage(conn x_conn.Conn, id uint16, data []byte) {
 		}
 		rpcRsp.SeqId = rpcReq.SeqId
 		rpcRsp.RspBytes = rspBytes
-		rspBytes, err = json.Marshal(rpcRsp)
+		rspBytes, err = x_json.Marshal(rpcRsp)
 		if err != nil {
 			x_log.Errorf("marshal x_rpc rsp error: %s", err.Error())
 			return

@@ -1,9 +1,9 @@
 package x_rpc
 
 import (
-	"encoding/json"
 	"errors"
 	"github.com/FireManXiong/xsession/x/x_conn"
+	"github.com/FireManXiong/xsession/x/x_json"
 	"github.com/FireManXiong/xsession/x/x_log"
 	"net"
 	"sync"
@@ -83,13 +83,13 @@ func (slf *Client) onClose(conn x_conn.Conn) {
 }
 func (slf *Client) rpcRsp(data []byte) {
 	rpcRsp := &callRsp{}
-	if err := json.Unmarshal(data, rpcRsp); err != nil {
+	if err := x_json.Unmarshal(data, rpcRsp); err != nil {
 		x_log.Errorf("unmarshal x_rpc rsp error1: %s", err.Error())
 		return
 	}
 	if info, ok := slf.seqMap.Load(rpcRsp.SeqId); ok {
 		cInfo := info.(*callInfo)
-		err := json.Unmarshal(rpcRsp.RspBytes, cInfo.rsp)
+		err := x_json.Unmarshal(rpcRsp.RspBytes, cInfo.rsp)
 		if err != nil {
 			x_log.Errorf("unmarshal x_rpc rsp error2: %s", err.Error())
 			return
@@ -111,7 +111,7 @@ func (slf *Client) Call(method string, req any, rsp any) error {
 		req:   req,
 		rsp:   rsp,
 	}
-	reqBytes, err := json.Marshal(req)
+	reqBytes, err := x_json.Marshal(req)
 	if err != nil {
 		return err
 	}
@@ -120,23 +120,24 @@ func (slf *Client) Call(method string, req any, rsp any) error {
 		Method:   method,
 		ReqBytes: reqBytes,
 	}
-	callBytes, err := json.Marshal(rpcReq)
-	if err != nil {
-		return err
-	}
-	err = slf.conn.Send(1, callBytes)
+	callBytes, err := x_json.Marshal(rpcReq)
 	if err != nil {
 		return err
 	}
 	slf.seqMap.Store(seqId, info)
+	defer func() {
+		slf.seqMap.Delete(seqId)
+	}()
+	err = slf.conn.Send(1, callBytes)
+	if err != nil {
+		return err
+	}
 	t := time.NewTimer(slf.callTimeout)
 	defer t.Stop()
 	select {
 	case <-t.C:
-		slf.seqMap.Delete(seqId)
 		return errors.New("x_rpc timeout")
 	case <-info.done:
-		slf.seqMap.Delete(seqId)
 	}
 	return nil
 }

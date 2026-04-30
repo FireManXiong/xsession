@@ -5,10 +5,10 @@ import (
 	"net"
 )
 
-func Listen(addr string, opts ...x_conn.Option) {
+func Listen(addr string, opts ...x_conn.Option) error {
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	for {
 		c, err := lis.Accept()
