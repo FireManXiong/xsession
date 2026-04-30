@@ -41,6 +41,13 @@ type conn struct {
 
 type Option func(c *conn)
 
+type Options []Option
+
+func (opts *Options) Append(opt ...Option) *Options {
+	*opts = append(*opts, opt...)
+	return opts
+}
+
 func NewConn(opts ...Option) Conn {
 	c := &conn{}
 	for _, opt := range opts {

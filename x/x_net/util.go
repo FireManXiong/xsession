@@ -15,9 +15,8 @@ func Listen(addr string, opts ...x_conn.Option) error {
 		if err != nil {
 			continue
 		}
-		var options []x_conn.Option
-		options = append(options, x_conn.WithConn(c))
-		options = append(options, opts...)
+		options := x_conn.Options{}
+		options.Append(x_conn.WithConn(c)).Append(opts...)
 		x_conn.NewConn(options...).Start()
 	}
 }
@@ -27,8 +26,7 @@ func Dial(addr string, opts ...x_conn.Option) (x_conn.Conn, error) {
 	if err != nil {
 		return nil, err
 	}
-	var options []x_conn.Option
-	options = append(options, x_conn.WithConn(c))
-	options = append(options, opts...)
+	options := x_conn.Options{}
+	options.Append(x_conn.WithConn(c)).Append(opts...)
 	return x_conn.NewConn(options...).Start(), nil
 }

@@ -80,10 +80,8 @@ func (slf *Server) listen(opts ...x_conn.Option) {
 			x_log.Errorf("accept error:%v", err)
 			continue
 		}
-		var options []x_conn.Option
-		options = append(options, x_conn.WithConn(conn))
-		options = append(options, x_conn.WithHandler(handler))
-		options = append(options, opts...)
+		options := x_conn.Options{}
+		options.Append(x_conn.WithConn(conn), x_conn.WithHandler(handler)).Append(opts...)
 		x_conn.NewConn(options...).Start()
 	}
 }

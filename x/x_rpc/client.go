@@ -63,13 +63,11 @@ func (slf *Client) connect(opts ...x_conn.Option) error {
 		x_log.Errorf("x_rpc client connect error:%v", err)
 		return err
 	}
-	var options []x_conn.Option
 	handler := &x_conn.Handler{}
 	handler.OnMessage = slf.onMessage
 	handler.OnClose = slf.onClose
-	options = append(options, x_conn.WithConn(conn))
-	options = append(options, x_conn.WithHandler(handler))
-	options = append(options, opts...)
+	options := x_conn.Options{}
+	options.Append(x_conn.WithConn(conn), x_conn.WithHandler(handler)).Append(opts...)
 	slf.conn = x_conn.NewConn(options...).Start()
 	return err
 }
