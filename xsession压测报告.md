@@ -1,4 +1,4 @@
-# XSession 官方压测报告（可直接放 GitHub）
+# XSession 官方压测报告
 
 ## 🚀 XSession Network — 官方基准压测报告
 
